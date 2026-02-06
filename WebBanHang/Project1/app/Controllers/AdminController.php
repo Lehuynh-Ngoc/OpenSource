@@ -12,73 +12,92 @@ class AdminController {
 
     public function create() { require_once 'app/views/admin/create.php'; }
 
-    public function store() {
-        if ($_POST) {
-            $name = $_POST['name'];
-            $price = $_POST['price'];
-            $imageName = 'default.jpg'; // Ảnh mặc định
+    // Helper function to handle image upload
+    private function uploadImage($file) {
+        // Define upload directory relative to this controller file
+        // app/Controllers/../../public/uploads/ => public/uploads/
+        $uploadDir = __DIR__ . '/../../public/uploads/';
+        
+        // Create directory if it doesn't exist
+        if (!is_dir($uploadDir)) {
+            mkdir($uploadDir, 0777, true);
+        }
 
-            // Xử lý Upload Ảnh
-            if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-                $imageName = time() . '_' . $_FILES['image']['name'];
-                $target = 'public/uploads/' . $imageName;
-                
-                // Di chuyển file vào thư mục đích
-                if (!move_uploaded_file($_FILES['image']['tmp_name'], $target)) {
-                    die("Lỗi: Không thể upload ảnh.");
+        $fileName = time() . '_' . basename($file['name']);
+        $targetPath = $uploadDir . $fileName;
+
+        if (move_uploaded_file($file['tmp_name'], $targetPath)) {
+            return $fileName;
+        }
+        
+        return false;
+    }
+
+    public function store() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = $_POST['name'] ?? '';
+            $price = $_POST['price'] ?? 0;
+            $imageName = 'default.jpg'; 
+
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+                $uploaded = $this->uploadImage($_FILES['image']);
+                if ($uploaded) {
+                    $imageName = $uploaded;
+                } else {
+                    die("Lỗi: Không thể upload ảnh. Vui lòng kiểm tra quyền thư mục public/uploads");
                 }
             }
 
             $this->model->add($name, $price, $imageName);
             header('Location: /Project1/admin/index');
+            exit;
         }
     }
 
     public function delete($id) {
         $this->model->delete($id);
         header('Location: /Project1/admin/index');
+        exit;
     }
 
     public function edit($id) {
         $product = $this->model->getById($id);
+        if (!$product) {
+            die('Sản phẩm không tồn tại');
+        }
         require_once 'app/views/admin/edit.php';
     }
 
     public function update($id) {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $name = $_POST['name'];
-        $price = $_POST['price'];
-        
-        $product = $this->model->getById($id);
-        $image = $product['image']; 
-
-        if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
-            // Sử dụng __DIR__ để xác định đường dẫn tuyệt đối từ thư mục hiện tại
-            // Giả sử AdminController nằm trong app/Controllers, ta cần lùi ra 2 cấp để vào public/uploads
-            $uploadDir = realpath(__DIR__ . '/../../public/uploads/') . DIRECTORY_SEPARATOR;
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = $_POST['name'];
+            $price = $_POST['price'];
             
-            // Kiểm tra nếu thư mục không tồn tại thì tạo mới
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
+            $product = $this->model->getById($id);
+            if (!$product) {
+                 die('Sản phẩm không tồn tại');
             }
+            
+            $image = $product['image']; 
 
-            $fileName = time() . '_' . basename($_FILES['image']['name']);
-            $targetPath = $uploadDir . $fileName;
-
-            if (move_uploaded_file($_FILES['image']['tmp_name'], $targetPath)) {
-                // Xóa ảnh cũ (nếu cần)
-                if ($product['image'] !== 'default.jpg' && file_exists($uploadDir . $product['image'])) {
-                    unlink($uploadDir . $product['image']);
+            // Nếu có upload ảnh mới
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+                $uploaded = $this->uploadImage($_FILES['image']);
+                if ($uploaded) {
+                    // Xóa ảnh cũ nếu không phải default
+                    $uploadDir = __DIR__ . '/../../public/uploads/';
+                    if ($product['image'] !== 'default.jpg' && file_exists($uploadDir . $product['image'])) {
+                        unlink($uploadDir . $product['image']);
+                    }
+                    $image = $uploaded;
+                } else {
+                     die("Lỗi: Không thể upload ảnh cập nhật.");
                 }
-                $image = $fileName; 
-            } else {
-                die("Lỗi: Không thể di chuyển file vào thư mục $uploadDir. Hãy kiểm tra quyền ghi.");
             }
-        }
 
-        $this->model->update($id, $name, $price, $image);
-        header('Location: /Project1/admin/index');
-        exit;
+            $this->model->update($id, $name, $price, $image);
+            header('Location: /Project1/admin/index');
+            exit;
+        }
     }
-}
 }
