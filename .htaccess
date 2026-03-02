@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Chuyển hướng các request vào thư mục Project1 sang Project1/index.php
+RewriteRule ^Project1/(.*)$ Project1/index.php?url=$1 [QSA,L]
+
+# Các request khác (nếu có) xử lý tại index.php ở root
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
