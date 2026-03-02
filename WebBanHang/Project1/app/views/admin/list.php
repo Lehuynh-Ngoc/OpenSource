@@ -15,6 +15,7 @@
             </div>
             <div class="flex gap-2">
                 <a href="/Project1/product/index" class="bg-gray-200 text-gray-700 px-5 py-2.5 rounded-xl font-bold hover:bg-gray-300 transition">Xem Shop</a>
+                <a href="/Project1/category/index" class="bg-orange-100 text-orange-700 px-5 py-2.5 rounded-xl font-bold hover:bg-orange-200 transition italic">Quản lý danh mục</a>
                 <a href="/Project1/admin/create" class="bg-orange-500 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-orange-600 shadow-md transition flex items-center">
                     <span class="mr-2">+</span> Thêm mới
                 </a>

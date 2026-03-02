@@ -23,6 +23,16 @@
             </div>
 
             <div>
+                <label class="block text-sm font-black text-gray-700 uppercase mb-2 tracking-wide">Danh mục</label>
+                <select name="category_id" class="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none transition font-bold text-gray-600">
+                    <option value="">-- Chọn danh mục --</option>
+                    <?php if(!empty($categories)): foreach($categories as $cat): ?>
+                        <option value="<?= $cat['id'] ?>" <?= ($product['category_id'] == $cat['id']) ? 'selected' : '' ?>><?= $cat['name'] ?></option>
+                    <?php endforeach; endif; ?>
+                </select>
+            </div>
+
+            <div>
                 <label class="block text-sm font-black text-gray-700 uppercase mb-2 tracking-wide">Giá bán (VNĐ)</label>
                 <input type="number" name="price" value="<?= $product['price'] ?>" required 
                        class="w-full border-2 border-gray-100 p-3 rounded-xl focus:border-orange-500 focus:ring-2 focus:ring-orange-100 outline-none transition font-bold text-orange-600">

@@ -31,6 +31,20 @@
     <header class="bg-white py-12 border-b text-center">
         <h2 class="text-4xl font-extrabold text-gray-800 uppercase tracking-tight">Cửa hàng sinh viên HUTECH</h2>
         <p class="text-gray-500 mt-2 font-medium">Đồng phục - Phụ kiện - Chất lượng cao</p>
+        
+        <!-- Menu Danh Mục -->
+        <div class="mt-8 flex justify-center gap-4 flex-wrap px-4">
+            <a href="/Project1/product/index" 
+               class="px-6 py-2 rounded-full font-bold text-sm transition <?= !isset($categoryId) || $categoryId == null ? 'bg-[#0054a6] text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' ?>">
+               Tất cả
+            </a>
+            <?php if(!empty($categories)): foreach($categories as $cat): ?>
+            <a href="/Project1/product/index/<?= $cat['id'] ?>" 
+               class="px-6 py-2 rounded-full font-bold text-sm transition <?= (isset($url[2]) && $url[2] == $cat['id']) ? 'bg-[#0054a6] text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200' ?>">
+               <?= $cat['name'] ?>
+            </a>
+            <?php endforeach; endif; ?>
+        </div>
     </header>
 
     <main class="container mx-auto my-10 p-4">

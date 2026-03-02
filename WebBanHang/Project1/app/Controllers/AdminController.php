@@ -1,35 +1,36 @@
 <?php
 require_once 'app/models/ProductModel.php';
+require_once 'app/models/CategoryModel.php';
 
 class AdminController {
     private $model;
-    public function __construct() { $this->model = new ProductModel(); }
+    private $categoryModel;
+
+    public function __construct() { 
+        $this->model = new ProductModel(); 
+        $this->categoryModel = new CategoryModel();
+    }
 
     public function index() {
         $products = $this->model->getAll();
         require_once 'app/views/admin/list.php';
     }
 
-    public function create() { require_once 'app/views/admin/create.php'; }
+    public function create() { 
+        $categories = $this->categoryModel->getAll();
+        require_once 'app/views/admin/create.php'; 
+    }
 
-    // Helper function to handle image upload
     private function uploadImage($file) {
-        // Define upload directory relative to this controller file
-        // app/Controllers/../../public/uploads/ => public/uploads/
         $uploadDir = __DIR__ . '/../../public/uploads/';
-        
-        // Create directory if it doesn't exist
         if (!is_dir($uploadDir)) {
             @mkdir($uploadDir, 0777, true);
         }
-
         $fileName = time() . '_' . basename($file['name']);
         $targetPath = $uploadDir . $fileName;
-
         if (move_uploaded_file($file['tmp_name'], $targetPath)) {
             return $fileName;
         }
-        
         return false;
     }
 
@@ -37,9 +38,9 @@ class AdminController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = $_POST['name'] ?? '';
             $price = $_POST['price'] ?? 0;
+            $categoryId = $_POST['category_id'] ?? null;
             $imageName = 'default.jpg'; 
 
-            // Kiểm tra dữ liệu đầu vào
             if (empty($name) || empty($price)) {
                 die("Lỗi: Vui lòng nhập đầy đủ Tên và Giá sản phẩm.");
             }
@@ -51,15 +52,12 @@ class AdminController {
                 }
             }
 
-            if ($this->model->add($name, $price, $imageName)) {
-                // Sau khi lưu thành công, quay về danh sách
+            if ($this->model->add($name, $price, $imageName, $categoryId)) {
                 header('Location: /Project1/admin/index');
                 exit;
             } else {
-                die("Lỗi Database: Không thể thực hiện lệnh INSERT vào bảng products.");
+                die("Lỗi Database: Không thể thực hiện lệnh INSERT.");
             }
-        } else {
-            die("Lỗi: Phương thức yêu cầu không hợp lệ (Phải là POST).");
         }
     }
 
@@ -71,6 +69,7 @@ class AdminController {
 
     public function edit($id) {
         $product = $this->model->getById($id);
+        $categories = $this->categoryModel->getAll();
         if (!$product) {
             die('Sản phẩm không tồn tại');
         }
@@ -81,6 +80,7 @@ class AdminController {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = $_POST['name'] ?? '';
             $price = $_POST['price'] ?? 0;
+            $categoryId = $_POST['category_id'] ?? null;
             
             $product = $this->model->getById($id);
             if (!$product) {
@@ -89,11 +89,9 @@ class AdminController {
             
             $image = $product['image']; 
 
-            // Nếu có upload ảnh mới
             if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
                 $uploaded = $this->uploadImage($_FILES['image']);
                 if ($uploaded) {
-                    // Xóa ảnh cũ nếu không phải default
                     $uploadDir = __DIR__ . '/../../public/uploads/';
                     if ($product['image'] !== 'default.jpg' && file_exists($uploadDir . $product['image'])) {
                         @unlink($uploadDir . $product['image']);
@@ -102,7 +100,7 @@ class AdminController {
                 }
             }
 
-            if ($this->model->update($id, $name, $price, $image)) {
+            if ($this->model->update($id, $name, $price, $image, $categoryId)) {
                 header('Location: /Project1/admin/index');
                 exit;
             } else {
