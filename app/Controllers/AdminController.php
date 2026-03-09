@@ -2,11 +2,15 @@
 require_once 'app/models/ProductModel.php';
 require_once 'app/models/CategoryModel.php';
 require_once 'app/models/UserModel.php';
+require_once 'app/models/PromotionModel.php';
+require_once 'app/models/VoucherModel.php';
 
 class AdminController {
     private $model;
     private $categoryModel;
     private $userModel;
+    private $promotionModel;
+    private $voucherModel;
 
     public function __construct() { 
         if (session_status() === PHP_SESSION_NONE) {
@@ -25,6 +29,64 @@ class AdminController {
         $this->model = new ProductModel(); 
         $this->categoryModel = new CategoryModel();
         $this->userModel = new UserModel();
+        $this->promotionModel = new PromotionModel();
+        $this->voucherModel = new VoucherModel();
+    }
+
+    // --- QUẢN LÝ ƯU ĐÃI (PROMOTIONS & VOUCHERS) ---
+    public function promotions() {
+        $promotions = $this->promotionModel->getAll();
+        $vouchers = $this->voucherModel->getAll();
+        $products = $this->model->getAll();
+        $categories = $this->categoryModel->getAll();
+        require_once 'app/views/admin/promotion_list.php';
+    }
+
+    public function promotion_store() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = $_POST['name'] ?? '';
+            $type = $_POST['type'] ?? 'product';
+            $target_id = $_POST['target_id'] ?? 0;
+            $discount_type = $_POST['discount_type'] ?? 'fixed';
+            $discount_value = $_POST['discount_value'] ?? 0;
+            $start_date = !empty($_POST['start_date']) ? $_POST['start_date'] : null;
+            $end_date = !empty($_POST['end_date']) ? $_POST['end_date'] : null;
+
+            // Chuyển đổi định dạng datetime-local (T) sang định dạng SQL (YYYY-MM-DD HH:MM:SS)
+            if ($start_date) $start_date = str_replace('T', ' ', $start_date) . ':00';
+            if ($end_date) $end_date = str_replace('T', ' ', $end_date) . ':00';
+
+            $this->promotionModel->add($name, $type, $target_id, $discount_type, $discount_value, $start_date, $end_date);
+            header('Location: /Project1/admin/promotions');
+            exit;
+        }
+    }
+
+    public function promotion_delete($id) {
+        $this->promotionModel->delete($id);
+        header('Location: /Project1/admin/promotions');
+        exit;
+    }
+
+    public function voucher_store() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $code = $_POST['code'] ?? '';
+            $discount_type = $_POST['discount_type'] ?? 'fixed';
+            $discount_value = $_POST['discount_value'] ?? 0;
+            $min_order_value = $_POST['min_order_value'] ?? 0;
+            $usage_limit = $_POST['usage_limit'] ?? 1;
+            $expiry_date = !empty($_POST['expiry_date']) ? $_POST['expiry_date'] : null;
+
+            $this->voucherModel->add($code, $discount_type, $discount_value, $min_order_value, $usage_limit, $expiry_date);
+            header('Location: /Project1/admin/promotions');
+            exit;
+        }
+    }
+
+    public function voucher_delete($id) {
+        $this->voucherModel->delete($id);
+        header('Location: /Project1/admin/promotions');
+        exit;
     }
 
     public function index() {

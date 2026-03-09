@@ -9,8 +9,35 @@
 <body class="bg-gray-50 min-h-screen">
     <nav class="bg-[#0054a6] p-4 text-white shadow-lg sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
-            <a href="/Project1/product/index" class="text-2xl font-black italic tracking-tighter">HUTECH <span class="text-orange-400">SHOP</span></a>
-            <a href="/Project1/cart/index" class="hover:text-orange-400 transition font-bold text-sm">Quay lại Giỏ hàng</a>
+            <h1 class="text-3xl font-black italic tracking-tighter">HUTECH <a href="/Project1/product/index" class="text-orange-400 hover:underline">SHOP</a></h1>
+            <ul class="flex space-x-6 items-center font-bold">
+                <li><a href="/Project1/product/index" class="hover:text-orange-400 transition text-sm">Sản phẩm</a></li>
+                <li class="relative">
+                    <a href="/Project1/cart/index" class="hover:text-orange-400 transition flex items-center text-sm">
+                        Giỏ hàng
+                    </a>
+                </li>
+                <?php if (isset($_SESSION['username'])): ?>
+                    <!-- Menu Quản lý Dropdown -->
+                    <?php if ($_SESSION['role'] === 'admin' || $_SESSION['username'] === 'admin'): ?>
+                        <li class="group relative">
+                            <button class="text-xs font-black uppercase tracking-widest bg-orange-500 px-4 py-2 rounded-xl hover:bg-orange-600 transition shadow-lg flex items-center gap-2">
+                                ⚙️ Quản lý <span class="text-[10px]">▼</span>
+                            </button>
+                            <div class="absolute hidden group-hover:block bg-white text-gray-800 rounded-2xl shadow-2xl py-3 w-56 mt-1 border border-gray-100 left-0 overflow-hidden z-[100]">
+                                <a href="/Project1/admin/index" class="block px-6 py-3 hover:bg-blue-50 hover:text-[#0054a6] font-black text-xs uppercase tracking-widest transition">📦 Sản phẩm</a>
+                                <a href="/Project1/admin/promotions" class="block px-6 py-3 hover:bg-blue-50 hover:text-[#0054a6] font-black text-xs uppercase tracking-widest transition">🎁 Ưu đãi</a>
+                                <a href="/Project1/admin/users" class="block px-6 py-3 hover:bg-blue-50 hover:text-[#0054a6] font-black text-xs uppercase tracking-widest transition">👥 Người dùng</a>
+                            </div>
+                        </li>
+                    <?php endif; ?>
+                    
+                    <li class="text-sm text-orange-300 italic">Chào, <?= htmlspecialchars($_SESSION['username']) ?></li>
+                    <li><a href="/Project1/auth/logout" class="text-sm hover:text-red-400 transition font-bold">Thoát</a></li>
+                <?php else: ?>
+                    <li><a href="/Project1/auth/login" class="text-sm hover:text-orange-400 transition">Đăng nhập</a></li>
+                <?php endif; ?>
+            </ul>
         </div>
     </nav>
 

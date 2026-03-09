@@ -11,8 +11,11 @@
         <div class="w-64 bg-gray-900 text-white min-h-screen p-6 sticky top-0 flex flex-col">
             <h2 class="text-2xl font-black mb-10 italic tracking-tighter uppercase">HUTECH <span class="text-orange-500 italic">CP</span></h2>
             <nav class="space-y-2 flex-1">
-                <a href="/Project1/admin/index" class="flex items-center px-4 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 bg-orange-500 text-white shadow-lg shadow-orange-900/20">
+                <a href="/Project1/admin/index" class="flex items-center px-4 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 text-gray-400 hover:bg-gray-800 hover:text-white">
                     <span class="mr-3 text-lg">📦</span> Sản phẩm
+                </a>
+                <a href="/Project1/admin/promotions" class="flex items-center px-4 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 text-gray-400 hover:bg-gray-800 hover:text-white">
+                    <span class="mr-3 text-lg">🎁</span> Ưu đãi
                 </a>
                 <a href="/Project1/admin/users" class="flex items-center px-4 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 text-gray-400 hover:bg-gray-800 hover:text-white">
                     <span class="mr-3 text-lg">👥</span> Người dùng

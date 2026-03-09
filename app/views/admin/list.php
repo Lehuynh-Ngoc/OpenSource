@@ -14,6 +14,9 @@
                 <a href="/Project1/admin/index" class="flex items-center px-4 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 bg-orange-500 text-white shadow-lg shadow-orange-900/20">
                     <span class="mr-3 text-lg">📦</span> Sản phẩm
                 </a>
+                <a href="/Project1/admin/promotions" class="flex items-center px-4 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 text-gray-400 hover:bg-gray-800 hover:text-white">
+                    <span class="mr-3 text-lg">🎁</span> Ưu đãi
+                </a>
                 <a href="/Project1/admin/users" class="flex items-center px-4 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 text-gray-400 hover:bg-gray-800 hover:text-white">
                     <span class="mr-3 text-lg">👥</span> Người dùng
                 </a>
@@ -53,6 +56,7 @@
                             <th class="p-6">Ảnh</th>
                             <th class="p-6">Tên sản phẩm</th>
                             <th class="p-6">Giá niêm yết</th>
+                            <th class="p-6">Số lượng</th>
                             <th class="p-6 text-center">Thao tác</th>
                         </tr>
                     </thead>
@@ -67,6 +71,9 @@
                             </td>
                             <td class="p-6">
                                 <span class="font-black text-[#0054a6] text-xl"><?= number_format($p['price']) ?>đ</span>
+                            </td>
+                            <td class="p-6">
+                                <span class="font-black text-gray-600"><?= $p['stock'] ?? 0 ?></span>
                             </td>
                             <td class="p-6 text-center">
                                 <div class="flex justify-center gap-4">
