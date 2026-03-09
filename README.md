@@ -48,7 +48,7 @@ Dự án website bán hàng (thương mại điện tử) được phát triển
 
 ### 3. Chạy ứng dụng
 - Chạy file `run_web.bat` ở thư mục gốc.
-- Trình duyệt sẽ tự động mở địa chỉ: [http://localhost:8000/Project1/](http://localhost:8000/Project1/)
+- Trình duyệt sẽ tự động mở địa chỉ: [http://localhost:8000/](http://localhost:8000/)
 
 ---
 
@@ -58,7 +58,7 @@ Dự án website bán hàng (thương mại điện tử) được phát triển
 
 ## 📁 Cấu trúc thư mục (MVC)
 ```text
-WebBanHang/Project1/
+.
 ├── app/
 │   ├── Controllers/    # Xử lý logic nghiệp vụ
 │   ├── models/         # Tương tác với Database
