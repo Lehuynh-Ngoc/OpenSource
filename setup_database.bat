@@ -27,7 +27,6 @@ ECHO --------------------------------------------------
 ECHO.
 
 REM Chay file create_admin.php thong qua PHP CLI
-cd WebBanHang\Project1
 "%PHP_EXE%" create_admin.php > nul
 
 ECHO [OK] Da khoi tao cac bang: users, products, categories, cart.

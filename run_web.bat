@@ -25,13 +25,12 @@ IF NOT EXIST "%PHP_EXE%" (
 
 ECHO Starting PHP Server for WebBanHang...
 ECHO Using PHP from: %PHP_EXE%
-ECHO Server running at http://localhost:8000/Project1/
+ECHO Server running at http://localhost:8000/
 ECHO Press Ctrl+C to stop the server.
 ECHO.
 
 REM Open browser to the root URL
 TIMEOUT /T 2 >NUL
-start http://localhost:8000/Project1/
+start http://localhost:8000/
 
-cd WebBanHang\Project1
 "%PHP_EXE%" -S localhost:8000 router.php

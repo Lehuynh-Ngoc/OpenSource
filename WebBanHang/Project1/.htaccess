@@ -1,6 +1,0 @@
-RewriteEngine On
-
-# Nếu yêu cầu không phải là file hoặc thư mục thật, hãy đưa vào index.php
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
