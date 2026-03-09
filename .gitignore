@@ -1,0 +1,23 @@
+# PHP
+.php_cs.cache
+.phpunit.result.cache
+
+# Logs
+*.log
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+
+# Database (if any local sqlite)
+*.db
+*.sqlite
+
+# Uploaded images (optional: decide if you want to push them)
+# WebBanHang/Project1/public/uploads/*
+# !WebBanHang/Project1/public/uploads/.gitkeep
