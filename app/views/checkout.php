@@ -39,6 +39,61 @@
                             <input type="text" name="customer_address" required placeholder="Số nhà, tên đường, phường/xã..." 
                                    class="w-full border-2 border-gray-100 p-4 rounded-2xl focus:border-[#0054a6] outline-none font-bold">
                         </div>
+                        
+                        <div class="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-50">
+                            <div>
+                                <label class="block text-xs font-black text-gray-400 uppercase mb-3">Hình thức giao hàng</label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center gap-3 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-blue-200 has-[:checked]:border-[#0054a6] has-[:checked]:bg-blue-50 transition">
+                                        <input type="radio" name="shipping_method" value="standard" checked onchange="updateSummary()" class="w-4 h-4 text-[#0054a6]">
+                                        <div>
+                                            <p class="text-xs font-black uppercase">Tiêu chuẩn / Trực tiếp</p>
+                                            <p class="text-[10px] text-gray-400 font-bold">Giao trong 2-3 ngày • 20.000đ</p>
+                                        </div>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-blue-200 has-[:checked]:border-[#0054a6] has-[:checked]:bg-blue-50 transition">
+                                        <input type="radio" name="shipping_method" value="express" onchange="updateSummary()" class="w-4 h-4 text-[#0054a6]">
+                                        <div>
+                                            <p class="text-xs font-black uppercase">Hỏa tốc (24h)</p>
+                                            <p class="text-[10px] text-gray-400 font-bold">Nhận ngay trong ngày • 50.000đ</p>
+                                        </div>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-blue-200 has-[:checked]:border-[#0054a6] has-[:checked]:bg-blue-50 transition">
+                                        <input type="radio" name="shipping_method" value="locker" onchange="updateSummary()" class="w-4 h-4 text-[#0054a6]">
+                                        <div>
+                                            <p class="text-xs font-black uppercase">Tủ hàng thông minh</p>
+                                            <p class="text-[10px] text-gray-400 font-bold">Tự nhận tại trạm • 10.000đ</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-black text-gray-400 uppercase mb-3">Khu vực giao hàng</label>
+                                <div class="space-y-2">
+                                    <label class="flex items-center gap-3 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-blue-200 has-[:checked]:border-[#0054a6] has-[:checked]:bg-blue-50 transition">
+                                        <input type="radio" name="shipping_region" value="tphcm" checked onchange="updateSummary()" class="w-4 h-4 text-[#0054a6]">
+                                        <div>
+                                            <p class="text-xs font-black uppercase">Nội thành TP.HCM</p>
+                                            <p class="text-[10px] text-gray-400 font-bold">Miễn phí phụ thu vùng</p>
+                                        </div>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-blue-200 has-[:checked]:border-[#0054a6] has-[:checked]:bg-blue-50 transition">
+                                        <input type="radio" name="shipping_region" value="nearby" onchange="updateSummary()" class="w-4 h-4 text-[#0054a6]">
+                                        <div>
+                                            <p class="text-xs font-black uppercase">Khu vực lân cận</p>
+                                            <p class="text-[10px] text-gray-400 font-bold">Bình Dương, Đồng Nai... • +15.000đ</p>
+                                        </div>
+                                    </label>
+                                    <label class="flex items-center gap-3 p-3 border-2 border-gray-100 rounded-xl cursor-pointer hover:border-blue-200 has-[:checked]:border-[#0054a6] has-[:checked]:bg-blue-50 transition">
+                                        <input type="radio" name="shipping_region" value="far" onchange="updateSummary()" class="w-4 h-4 text-[#0054a6]">
+                                        <div>
+                                            <p class="text-xs font-black uppercase">Khu vực miền xa</p>
+                                            <p class="text-[10px] text-gray-400 font-bold">Các tỉnh miền Bắc, Trung... • +35.000đ</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -100,7 +155,7 @@
                 <div class="bg-white rounded-3xl shadow-2xl p-8 border border-gray-100">
                     <h3 class="text-xl font-black text-gray-800 uppercase mb-6">Tóm tắt đơn hàng</h3>
                     <div class="space-y-4 border-b border-gray-100 pb-6 mb-6">
-                        <div class="flex justify-between font-bold text-gray-500">
+                        <div class="flex justify-between font-bold text-gray-500 text-sm">
                             <span>Tạm tính:</span>
                             <span><?= number_format($totalBefore) ?>đ</span>
                         </div>
@@ -111,23 +166,35 @@
                         <?php 
                         $totalAfterPromo = $totalBefore - $totalPromoDiscount;
                         $voucherDiscount = 0;
+                        $shippingVoucherDiscount = 0;
+                        
                         if (isset($voucher) && $totalAfterPromo >= $voucher['min_order_value']) {
-                            if ($voucher['discount_type'] == 'percent') {
-                                $voucherDiscount = $totalAfterPromo * ($voucher['discount_value'] / 100);
-                            } else {
-                                $voucherDiscount = min($totalAfterPromo, $voucher['discount_value']);
+                            if ($voucher['target_type'] == 'order') {
+                                if ($voucher['discount_type'] == 'percent') {
+                                    $voucherDiscount = $totalAfterPromo * ($voucher['discount_value'] / 100);
+                                } else {
+                                    $voucherDiscount = min($totalAfterPromo, $voucher['discount_value']);
+                                }
                             }
                         }
                         ?>
-                        <div class="flex justify-between font-bold text-green-500 text-sm italic">
+                        <div class="flex justify-between font-bold text-green-500 text-sm italic border-b border-gray-50 pb-4">
                             <span>Voucher:</span>
                             <span>-<?= number_format($voucherDiscount) ?>đ</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-blue-600 text-sm">
+                            <span>Phí vận chuyển:</span>
+                            <span id="shipping_cost_display">20,000đ</span>
+                        </div>
+                        <div id="shipping_voucher_row" class="flex justify-between font-bold text-green-500 text-sm italic <?= (!isset($voucher) || $voucher['target_type'] != 'shipping') ? 'hidden' : '' ?>">
+                            <span>Voucher vận chuyển:</span>
+                            <span id="shipping_voucher_display">-0đ</span>
                         </div>
                     </div>
                     
                     <div class="flex justify-between items-end mb-8">
                         <span class="font-black text-gray-800 uppercase text-xs">Tổng thanh toán:</span>
-                        <p class="text-4xl font-black text-orange-600 tracking-tighter"><?= number_format(max(0, $totalAfterPromo - $voucherDiscount)) ?>đ</p>
+                        <p id="final_total_display" class="text-4xl font-black text-orange-600 tracking-tighter"><?= number_format(max(0, $totalAfterPromo - $voucherDiscount) + 20000) ?>đ</p>
                     </div>
 
                     <div class="space-y-4">
@@ -160,6 +227,44 @@
     </form>
 
     <script>
+        function updateSummary() {
+            const shippingMethod = document.querySelector('input[name="shipping_method"]:checked').value;
+            const shippingRegion = document.querySelector('input[name="shipping_region"]:checked').value;
+
+            let baseShipping = 0;
+            if (shippingMethod === 'express') baseShipping = 50000;
+            else if (shippingMethod === 'standard') baseShipping = 20000;
+            else if (shippingMethod === 'locker') baseShipping = 10000;
+
+            let regionExtra = 0;
+            if (shippingRegion === 'tphcm') regionExtra = 0;
+            else if (shippingRegion === 'nearby') regionExtra = 15000;
+            else if (shippingRegion === 'far') regionExtra = 35000;
+
+            const shippingCost = baseShipping + regionExtra;
+            
+            // Xử lý Voucher vận chuyển nếu có
+            let shippingDiscount = 0;
+            <?php if (isset($voucher) && $voucher['target_type'] == 'shipping' && $totalAfterPromo >= $voucher['min_order_value']): ?>
+                const vType = '<?= $voucher['discount_type'] ?>';
+                const vVal = <?= $voucher['discount_value'] ?>;
+                if (vType === 'percent') {
+                    shippingDiscount = shippingCost * (vVal / 100);
+                } else {
+                    shippingDiscount = Math.min(shippingCost, vVal);
+                }
+                document.getElementById('shipping_voucher_row').classList.remove('hidden');
+                document.getElementById('shipping_voucher_display').innerText = '-' + new Intl.NumberFormat('vi-VN').format(shippingDiscount) + 'đ';
+            <?php endif; ?>
+
+            const subtotal = <?= max(0, $totalAfterPromo - $voucherDiscount) ?>;
+            const finalShipping = Math.max(0, shippingCost - shippingDiscount);
+            const total = subtotal + finalShipping;
+
+            document.getElementById('shipping_cost_display').innerText = new Intl.NumberFormat('vi-VN').format(shippingCost) + 'đ';
+            document.getElementById('final_total_display').innerText = new Intl.NumberFormat('vi-VN').format(total) + 'đ';
+        }
+
         function applyVoucher() {
             const code = document.getElementById('voucher_input').value;
             if (code) {
@@ -167,6 +272,17 @@
                 document.getElementById('voucher-form').submit();
             }
         }
+
+        // Ngăn chặn bấm đặt hàng nhiều lần
+        document.getElementById('checkout-form').onsubmit = function() {
+            const btn = this.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.innerText = "Đang xử lý...";
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+        };
+
+        // Khởi tạo phí vận chuyển khi load trang
+        window.onload = updateSummary;
     </script>
 </body>
 </html>

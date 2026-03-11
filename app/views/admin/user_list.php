@@ -14,6 +14,9 @@
                 <a href="/Project1/admin/index" class="flex items-center px-4 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 text-gray-400 hover:bg-gray-800 hover:text-white">
                     <span class="mr-3 text-lg">📦</span> Sản phẩm
                 </a>
+                <a href="/Project1/admin/orders" class="flex items-center px-4 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 text-gray-400 hover:bg-gray-800 hover:text-white">
+                    <span class="mr-3 text-lg">📑</span> Đơn hàng
+                </a>
                 <a href="/Project1/admin/promotions" class="flex items-center px-4 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all duration-300 text-gray-400 hover:bg-gray-800 hover:text-white">
                     <span class="mr-3 text-lg">🎁</span> Ưu đãi
                 </a>

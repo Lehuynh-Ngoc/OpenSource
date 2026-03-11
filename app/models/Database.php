@@ -82,7 +82,7 @@ class Database {
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )");
 
-            // 5. Bảng Đơn hàng (CẬP NHẬT)
+            // 5. Bảng Đơn hàng (CẬP NHẬT TRẠNG THÁI)
             $this->conn->exec("CREATE TABLE IF NOT EXISTS orders (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 user_id INT,
@@ -91,12 +91,29 @@ class Database {
                 customer_address TEXT,
                 total_before_discount INT NOT NULL,
                 discount_amount INT DEFAULT 0,
+                shipping_cost INT DEFAULT 0,
                 total_amount INT NOT NULL,
                 voucher_code VARCHAR(50),
                 payment_method VARCHAR(50) DEFAULT 'pay_later',
-                status ENUM('pending', 'completed', 'cancelled') DEFAULT 'pending',
+                shipping_method VARCHAR(50),
+                shipping_region VARCHAR(100),
+                status ENUM('pending', 'confirmed', 'shipping', 'delivering', 'received', 'cancelled') DEFAULT 'pending',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+            )");
+
+            // 9. Bảng Đánh giá sản phẩm (MỚI)
+            $this->conn->exec("CREATE TABLE IF NOT EXISTS reviews (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                product_id INT NOT NULL,
+                user_id INT NOT NULL,
+                order_id INT NOT NULL,
+                rating TINYINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+                comment TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE,
+                FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+                FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
             )");
 
             // Kiểm tra và cập nhật các cột thiếu cho orders
@@ -106,7 +123,10 @@ class Database {
                 'customer_address' => "TEXT AFTER customer_phone",
                 'total_before_discount' => "INT NOT NULL AFTER customer_address",
                 'discount_amount' => "INT DEFAULT 0 AFTER total_before_discount",
-                'voucher_code' => "VARCHAR(50) AFTER total_amount"
+                'shipping_cost' => "INT DEFAULT 0 AFTER discount_amount",
+                'voucher_code' => "VARCHAR(50) AFTER total_amount",
+                'shipping_method' => "VARCHAR(50) AFTER payment_method",
+                'shipping_region' => "VARCHAR(100) AFTER shipping_method"
             ];
             foreach($orderCols as $col => $attr) {
                 try {
@@ -115,6 +135,20 @@ class Database {
                     $this->conn->exec("ALTER TABLE orders ADD COLUMN $col $attr");
                 }
             }
+
+            // Cập nhật kiểu dữ liệu cho cột status để hỗ trợ đầy đủ các bước (MỚI)
+            $this->conn->exec("ALTER TABLE orders MODIFY COLUMN status ENUM('pending', 'confirmed', 'shipping', 'delivering', 'received', 'cancelled') DEFAULT 'pending'");
+
+            // 6. Bảng Chi tiết đơn hàng (MỚI)
+            $this->conn->exec("CREATE TABLE IF NOT EXISTS order_items (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                order_id INT NOT NULL,
+                product_id INT NOT NULL,
+                quantity INT NOT NULL,
+                price INT NOT NULL,
+                FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+                FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+            )");
 
             // 7. Bảng Khuyến mãi (Promotions - cho sản phẩm hoặc danh mục)
             $this->conn->exec("CREATE TABLE IF NOT EXISTS promotions (
@@ -147,15 +181,31 @@ class Database {
             $this->conn->exec("CREATE TABLE IF NOT EXISTS vouchers (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 code VARCHAR(50) NOT NULL UNIQUE,
+                target_type ENUM('order', 'shipping') DEFAULT 'order',
                 discount_type ENUM('fixed', 'percent') NOT NULL,
                 discount_value INT NOT NULL,
                 min_order_value INT DEFAULT 0,
                 usage_limit INT DEFAULT 1,
                 used_count INT DEFAULT 0,
-                expiry_date DATE,
+                start_date DATETIME,
+                end_date DATETIME,
                 status TINYINT(1) DEFAULT 1,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )");
+
+            // Kiểm tra và cập nhật các cột thiếu cho vouchers
+            $voucherCols = [
+                'target_type' => "ENUM('order', 'shipping') DEFAULT 'order' AFTER code",
+                'start_date' => "DATETIME AFTER used_count",
+                'end_date' => "DATETIME AFTER start_date"
+            ];
+            foreach($voucherCols as $col => $attr) {
+                try {
+                    $this->conn->query("SELECT $col FROM vouchers LIMIT 1");
+                } catch (Exception $e) {
+                    $this->conn->exec("ALTER TABLE vouchers ADD COLUMN $col $attr");
+                }
+            }
 
             $this->conn->exec("set names utf8");
         } catch(PDOException $exception) {

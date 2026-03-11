@@ -4,6 +4,7 @@ require_once 'app/models/CategoryModel.php';
 require_once 'app/models/UserModel.php';
 require_once 'app/models/PromotionModel.php';
 require_once 'app/models/VoucherModel.php';
+require_once 'app/models/OrderModel.php';
 
 class AdminController {
     private $model;
@@ -11,6 +12,7 @@ class AdminController {
     private $userModel;
     private $promotionModel;
     private $voucherModel;
+    private $orderModel;
 
     public function __construct() { 
         if (session_status() === PHP_SESSION_NONE) {
@@ -31,6 +33,7 @@ class AdminController {
         $this->userModel = new UserModel();
         $this->promotionModel = new PromotionModel();
         $this->voucherModel = new VoucherModel();
+        $this->orderModel = new OrderModel();
     }
 
     // --- QUẢN LÝ ƯU ĐÃI (PROMOTIONS & VOUCHERS) ---
@@ -49,12 +52,20 @@ class AdminController {
             $target_id = $_POST['target_id'] ?? 0;
             $discount_type = $_POST['discount_type'] ?? 'fixed';
             $discount_value = $_POST['discount_value'] ?? 0;
-            $start_date = !empty($_POST['start_date']) ? $_POST['start_date'] : null;
-            $end_date = !empty($_POST['end_date']) ? $_POST['end_date'] : null;
+            $start_date_raw = $_POST['start_date'] ?? '';
+            $end_date_raw = $_POST['end_date'] ?? '';
 
-            // Chuyển đổi định dạng datetime-local (T) sang định dạng SQL (YYYY-MM-DD HH:MM:SS)
-            if ($start_date) $start_date = str_replace('T', ' ', $start_date) . ':00';
-            if ($end_date) $end_date = str_replace('T', ' ', $end_date) . ':00';
+            // Chuyển đổi từ định dạng dd/mm/yyyy HH:MM sang YYYY-MM-DD HH:MM:SS
+            $start_date = null;
+            $end_date = null;
+            if ($start_date_raw) {
+                $dateObj = DateTime::createFromFormat('d/m/Y H:i', $start_date_raw);
+                if ($dateObj) $start_date = $dateObj->format('Y-m-d H:i:s');
+            }
+            if ($end_date_raw) {
+                $dateObj = DateTime::createFromFormat('d/m/Y H:i', $end_date_raw);
+                if ($dateObj) $end_date = $dateObj->format('Y-m-d H:i:s');
+            }
 
             $this->promotionModel->add($name, $type, $target_id, $discount_type, $discount_value, $start_date, $end_date);
             header('Location: /Project1/admin/promotions');
@@ -68,16 +79,58 @@ class AdminController {
         exit;
     }
 
+    public function promotion_update() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = $_POST['id'] ?? 0;
+            $name = $_POST['name'] ?? '';
+            $type = $_POST['type'] ?? 'product';
+            $target_id = $_POST['target_id'] ?? 0;
+            $discount_type = $_POST['discount_type'] ?? 'fixed';
+            $discount_value = $_POST['discount_value'] ?? 0;
+            $start_date_raw = $_POST['start_date'] ?? '';
+            $end_date_raw = $_POST['end_date'] ?? '';
+
+            $start_date = null;
+            $end_date = null;
+            if ($start_date_raw) {
+                $dateObj = DateTime::createFromFormat('d/m/Y H:i', $start_date_raw);
+                if ($dateObj) $start_date = $dateObj->format('Y-m-d H:i:s');
+            }
+            if ($end_date_raw) {
+                $dateObj = DateTime::createFromFormat('d/m/Y H:i', $end_date_raw);
+                if ($dateObj) $end_date = $dateObj->format('Y-m-d H:i:s');
+            }
+
+            $this->promotionModel->update($id, $name, $type, $target_id, $discount_type, $discount_value, $start_date, $end_date);
+            header('Location: /Project1/admin/promotions');
+            exit;
+        }
+    }
+
     public function voucher_store() {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $code = $_POST['code'] ?? '';
+            $target_type = $_POST['target_type'] ?? 'order';
             $discount_type = $_POST['discount_type'] ?? 'fixed';
             $discount_value = $_POST['discount_value'] ?? 0;
             $min_order_value = $_POST['min_order_value'] ?? 0;
             $usage_limit = $_POST['usage_limit'] ?? 1;
-            $expiry_date = !empty($_POST['expiry_date']) ? $_POST['expiry_date'] : null;
+            $start_date_raw = $_POST['start_date'] ?? '';
+            $end_date_raw = $_POST['end_date'] ?? '';
 
-            $this->voucherModel->add($code, $discount_type, $discount_value, $min_order_value, $usage_limit, $expiry_date);
+            // Chuyển đổi từ định dạng dd/mm/yyyy HH:MM sang YYYY-MM-DD HH:MM:SS
+            $start_date = null;
+            $end_date = null;
+            if ($start_date_raw) {
+                $dateObj = DateTime::createFromFormat('d/m/Y H:i', $start_date_raw);
+                if ($dateObj) $start_date = $dateObj->format('Y-m-d H:i:s');
+            }
+            if ($end_date_raw) {
+                $dateObj = DateTime::createFromFormat('d/m/Y H:i', $end_date_raw);
+                if ($dateObj) $end_date = $dateObj->format('Y-m-d H:i:s');
+            }
+
+            $this->voucherModel->add($code, $target_type, $discount_type, $discount_value, $min_order_value, $usage_limit, $start_date, $end_date);
             header('Location: /Project1/admin/promotions');
             exit;
         }
@@ -87,6 +140,35 @@ class AdminController {
         $this->voucherModel->delete($id);
         header('Location: /Project1/admin/promotions');
         exit;
+    }
+
+    public function voucher_update() {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $id = $_POST['id'] ?? 0;
+            $code = $_POST['code'] ?? '';
+            $target_type = $_POST['target_type'] ?? 'order';
+            $discount_type = $_POST['discount_type'] ?? 'fixed';
+            $discount_value = $_POST['discount_value'] ?? 0;
+            $min_order_value = $_POST['min_order_value'] ?? 0;
+            $usage_limit = $_POST['usage_limit'] ?? 1;
+            $start_date_raw = $_POST['start_date'] ?? '';
+            $end_date_raw = $_POST['end_date'] ?? '';
+
+            $start_date = null;
+            $end_date = null;
+            if ($start_date_raw) {
+                $dateObj = DateTime::createFromFormat('d/m/Y H:i', $start_date_raw);
+                if ($dateObj) $start_date = $dateObj->format('Y-m-d H:i:s');
+            }
+            if ($end_date_raw) {
+                $dateObj = DateTime::createFromFormat('d/m/Y H:i', $end_date_raw);
+                if ($dateObj) $end_date = $dateObj->format('Y-m-d H:i:s');
+            }
+
+            $this->voucherModel->update($id, $code, $target_type, $discount_type, $discount_value, $min_order_value, $usage_limit, $start_date, $end_date);
+            header('Location: /Project1/admin/promotions');
+            exit;
+        }
     }
 
     public function index() {
@@ -116,6 +198,17 @@ class AdminController {
     public function users() {
         $users = $this->userModel->getAll();
         require_once 'app/views/admin/user_list.php';
+    }
+
+    public function orders() {
+        // Lấy tất cả đơn hàng từ mọi người dùng thông qua model
+        $orders = $this->orderModel->getAllOrders();
+
+        foreach ($orders as &$order) {
+            $order['items'] = $this->orderModel->getOrderItems($order['id']);
+        }
+
+        require_once 'app/views/admin/order_list.php';
     }
 
     public function update_user_role($id) {

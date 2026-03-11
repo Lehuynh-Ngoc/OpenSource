@@ -6,34 +6,54 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
-    <header class="bg-[#0054a6] p-6 text-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-4">
-                <a href="/Project1/product/index" class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-[#0054a6] font-black">H</div>
-                    <h1 class="text-2xl font-bold uppercase tracking-tighter">HUTECH SHOP</h1>
-                </a>
-            </div>
-            <ul class="flex space-x-6 items-center font-bold">
-                <li><a href="/Project1/product/index" class="hover:text-orange-400 transition text-sm">Sản phẩm</a></li>
-                <li><a href="/Project1/cart/index" class="hover:text-orange-400 transition text-sm">Giỏ hàng</a></li>
+    <!-- Header -->
+    <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 shadow-sm">
+        <div class="container mx-auto px-6 h-20 flex justify-between items-center">
+            <a href="/Project1/product/index" class="text-3xl font-black italic tracking-tighter uppercase text-[#0054a6]">HUTECH <span class="text-orange-500">SHOP</span></a>
+            
+            <ul class="flex items-center gap-8 font-black text-xs uppercase tracking-widest text-gray-600">
+                <li><a href="/Project1/product/index" class="hover:text-[#0054a6] transition">Sản phẩm</a></li>
+                <li><a href="/Project1/default/promotions" class="hover:text-[#0054a6] transition text-[#0054a6]">Ưu đãi</a></li>
+                <li><a href="/Project1/default/about" class="hover:text-[#0054a6] transition">Giới thiệu</a></li>
+                <li class="relative">
+                    <a href="/Project1/cart/index" class="hover:text-[#0054a6] transition flex items-center gap-2">
+                        Giỏ hàng
+                        <?php if (isset($cartCount) && $cartCount > 0): ?>
+                        <span class="bg-orange-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full shadow-lg shadow-orange-200">
+                            <?= $cartCount ?>
+                        </span>
+                        <?php endif; ?>
+                    </a>
+                </li>
+
                 <?php if (isset($_SESSION['username'])): ?>
+                    <!-- Admin Dropdown -->
                     <?php if ($_SESSION['role'] === 'admin' || $_SESSION['username'] === 'admin'): ?>
                         <li class="group relative">
-                            <button class="text-xs font-black uppercase tracking-widest bg-orange-500 px-4 py-2 rounded-xl hover:bg-orange-600 transition shadow-lg flex items-center gap-2">
-                                ⚙️ Quản lý <span class="text-[10px]">▼</span>
+                            <button class="bg-gray-900 text-white px-5 py-2.5 rounded-xl hover:bg-black transition shadow-xl flex items-center gap-2 text-[10px]">
+                                ⚙️ Quản lý <span class="text-[8px] opacity-50">▼</span>
                             </button>
-                            <div class="absolute hidden group-hover:block bg-white text-gray-800 rounded-2xl shadow-2xl py-3 w-56 mt-1 border border-gray-100 left-0 overflow-hidden z-[100]">
-                                <a href="/Project1/admin/index" class="block px-6 py-3 hover:bg-blue-50 hover:text-[#0054a6] font-black text-xs uppercase tracking-widest transition">📦 Sản phẩm</a>
-                                <a href="/Project1/admin/promotions" class="block px-6 py-3 hover:bg-blue-50 hover:text-[#0054a6] font-black text-xs uppercase tracking-widest transition">🎁 Ưu đãi</a>
-                                <a href="/Project1/admin/users" class="block px-6 py-3 hover:bg-blue-50 hover:text-[#0054a6] font-black text-xs uppercase tracking-widest transition">👥 Người dùng</a>
+                            <div class="absolute hidden group-hover:block bg-white text-gray-800 rounded-2xl shadow-2xl py-3 w-56 mt-1 border border-gray-100 left-0 overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2 duration-200">
+                                <a href="/Project1/admin/index" class="block px-6 py-3 hover:bg-blue-50 hover:text-[#0054a6] transition font-black">📦 Sản phẩm</a>
+                                <a href="/Project1/admin/orders" class="block px-6 py-3 hover:bg-blue-50 hover:text-[#0054a6] transition font-black">📑 Đơn hàng</a>
+                                <a href="/Project1/admin/promotions" class="block px-6 py-3 hover:bg-blue-50 hover:text-[#0054a6] transition font-black">🎁 Ưu đãi</a>
+                                <a href="/Project1/admin/users" class="block px-6 py-3 hover:bg-blue-50 hover:text-[#0054a6] transition font-black">👥 Người dùng</a>
                             </div>
                         </li>
                     <?php endif; ?>
+                    
+                    <li class="flex items-center gap-6 border-l border-gray-100 pl-8">
+                        <a href="/Project1/auth/profile" class="text-[#0054a6] hover:text-orange-500 transition italic">Chào, <?= htmlspecialchars($_SESSION['username']) ?></a>
+                        <a href="/Project1/auth/logout" class="text-red-400 hover:text-red-600 transition font-bold">Thoát</a>
+                    </li>
+                <?php else: ?>
+                    <li class="border-l border-gray-100 pl-8">
+                        <a href="/Project1/auth/login" class="bg-[#0054a6] text-white px-6 py-2.5 rounded-xl hover:bg-blue-700 transition shadow-xl shadow-blue-100">Đăng nhập</a>
+                    </li>
                 <?php endif; ?>
             </ul>
         </div>
-    </header>
+    </nav>
 
     <main class="container mx-auto py-16 px-4">
         <div class="text-center mb-16">
@@ -53,7 +73,7 @@
                     <div class="relative z-10">
                         <div class="flex justify-between items-start mb-6">
                             <span class="bg-orange-500 text-white px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">Voucher</span>
-                            <span class="text-gray-300 font-bold text-[10px] uppercase">Hạn: <?= $v['expiry_date'] ? date('d/m/y', strtotime($v['expiry_date'])) : 'Vĩnh viễn' ?></span>
+                            <span class="text-gray-400 font-bold text-[10px] uppercase">Hết hạn: <?= $v['end_date'] ? date('H:i d/m/y', strtotime($v['end_date'])) : 'Vĩnh viễn' ?></span>
                         </div>
                         <h4 class="text-4xl font-black text-[#0054a6] mb-2">
                             -<?= number_format($v['discount_value']) ?><?= ($v['discount_type'] == 'percent' ? '%' : 'đ') ?>

@@ -33,13 +33,23 @@ class DefaultController
 
         $activeVouchers = array_filter($vouchers, function($v) {
             $now = new DateTime();
-            $expiry = $v['expiry_date'] ? new DateTime($v['expiry_date']) : null;
-            if ($expiry && $now > $expiry) return false;
+            $start = $v['start_date'] ? new DateTime($v['start_date']) : null;
+            $end = $v['end_date'] ? new DateTime($v['end_date']) : null;
+            if ($start && $now < $start) return false;
+            if ($end && $now > $end) return false;
             if ($v['used_count'] >= $v['usage_limit']) return false;
             return $v['status'] == 1;
         });
 
         require_once 'app/views/promotions.php';
+    }
+
+    public function about() {
+        $aboutContent = "";
+        if (file_exists('ABOUT.md')) {
+            $aboutContent = file_get_contents('ABOUT.md');
+        }
+        require_once 'app/views/about.php';
     }
 
     public function index() {
