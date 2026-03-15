@@ -182,11 +182,19 @@ class AdminController {
     }
 
     private function uploadImage($file) {
-        $uploadDir = __DIR__ . '/../../public/uploads/';
+        // Sử dụng DIRECTORY_SEPARATOR để tương thích tốt hơn với Windows
+        $uploadDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
+        
         if (!is_dir($uploadDir)) {
             @mkdir($uploadDir, 0777, true);
         }
-        $fileName = time() . '_' . basename($file['name']);
+
+        // Làm sạch tên file: loại bỏ ký tự đặc biệt
+        $originalName = basename($file['name']);
+        $extension = pathinfo($originalName, PATHINFO_EXTENSION);
+        $safeName = preg_replace('/[^a-zA-Z0-9]/', '_', pathinfo($originalName, PATHINFO_FILENAME));
+        $fileName = time() . '_' . $safeName . '.' . $extension;
+        
         $targetPath = $uploadDir . $fileName;
         if (move_uploaded_file($file['tmp_name'], $targetPath)) {
             return $fileName;
@@ -285,10 +293,17 @@ class AdminController {
                 die("Lỗi: Vui lòng nhập đầy đủ Tên và Giá sản phẩm.");
             }
 
-            if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+            // Kiểm tra lỗi upload nếu có file được chọn
+            if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
+                if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+                    die("Lỗi upload file: Mã lỗi " . $_FILES['image']['error']);
+                }
+                
                 $uploaded = $this->uploadImage($_FILES['image']);
                 if ($uploaded) {
                     $imageName = $uploaded;
+                } else {
+                    die("Lỗi: Không thể lưu file ảnh vào thư mục uploads. Vui lòng kiểm tra quyền ghi thư mục.");
                 }
             }
 
@@ -332,14 +347,21 @@ class AdminController {
             
             $image = $product['image']; 
 
-            if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+            // Kiểm tra lỗi upload nếu có file được chọn
+            if (isset($_FILES['image']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE) {
+                if ($_FILES['image']['error'] !== UPLOAD_ERR_OK) {
+                    die("Lỗi upload file: Mã lỗi " . $_FILES['image']['error']);
+                }
+
                 $uploaded = $this->uploadImage($_FILES['image']);
                 if ($uploaded) {
-                    $uploadDir = __DIR__ . '/../../public/uploads/';
+                    $uploadDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'public' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR;
                     if ($product['image'] !== 'default.jpg' && file_exists($uploadDir . $product['image'])) {
                         @unlink($uploadDir . $product['image']);
                     }
                     $image = $uploaded;
+                } else {
+                    die("Lỗi: Không thể lưu file ảnh mới.");
                 }
             }
 
